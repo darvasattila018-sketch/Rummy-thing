@@ -3,47 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Rummy Points</title>
-
 <style>
-body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-}
+body { font-family: Arial, sans-serif; padding: 20px; }
 h1 { text-align: center; }
-
-.row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 12px 0;
-}
-
-.name {
-    font-weight: bold;
-    cursor: pointer;
-}
-
-input[type="number"] {
-    width: 80px;
-    padding: 6px;
-    text-align: right;
-}
-
-button {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    margin-top: 10px;
-}
+.row { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; }
+.name { font-weight: bold; cursor: pointer; }
+input[type="number"] { width: 80px; padding: 6px; text-align: right; }
+button { width: 100%; padding: 14px; font-size: 16px; margin-top: 10px; }
 </style>
 </head>
-
 <body>
 
 <h1>Rummy Points</h1>
-
 <div id="players"></div>
 
 <button onclick="addRound()">Add Round</button>
@@ -51,16 +23,29 @@ button {
 
 <script>
 const defaultNames = ["Player 1", "Player 2", "Player 3", "Player 4"];
+let names = [];
+let totals = [];
 
-let names = JSON.parse(localStorage.getItem("names")) || [...defaultNames];
-let totals = JSON.parse(localStorage.getItem("totals")) || [0, 0, 0, 0];
-
-const container = document.getElementById("players");
+function load() {
+    try {
+        names = JSON.parse(localStorage.getItem("names")) || [...defaultNames];
+        totals = JSON.parse(localStorage.getItem("totals")) || [0,0,0,0];
+    } catch(e) {
+        names = [...defaultNames];
+        totals = [0,0,0,0];
+    }
+}
 
 function save() {
-    localStorage.setItem("names", JSON.stringify(names));
-    localStorage.setItem("totals", JSON.stringify(totals));
+    try {
+        localStorage.setItem("names", JSON.stringify(names));
+        localStorage.setItem("totals", JSON.stringify(totals));
+    } catch(e) {
+        alert("Unable to save data. Make sure you are not in private browsing mode.");
+    }
 }
+
+const container = document.getElementById("players");
 
 function render() {
     container.innerHTML = "";
@@ -87,8 +72,10 @@ function editName(index) {
 
 function addRound() {
     for (let i = 0; i < totals.length; i++) {
-        const value = parseInt(document.getElementById("input" + i).value) || 0;
+        const inputEl = document.getElementById("input" + i);
+        const value = parseInt(inputEl.value) || 0;
         totals[i] += value;
+        inputEl.value = ""; // clear input
     }
     save();
     render();
@@ -97,11 +84,13 @@ function addRound() {
 function resetGame() {
     if (!confirm("Reset all scores and names?")) return;
     names = [...defaultNames];
-    totals = [0, 0, 0, 0];
+    totals = [0,0,0,0];
     save();
     render();
 }
 
+// Initial load
+load();
 render();
 </script>
 
