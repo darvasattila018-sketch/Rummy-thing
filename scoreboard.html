@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rummy Points</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+h1 {
+    text-align: center;
+}
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+input {
+    width: 70px;
+    padding: 5px;
+    text-align: right;
+}
+button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    margin-top: 10px;
+}
+.total {
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Rummy Points</h1>
+
+<div id="players"></div>
+
+<button onclick="addRound()">Add Round</button>
+<button onclick="resetGame()">Reset Game</button>
+
+<script>
+const playerNames = ["Player 1", "Player 2", "Player 3", "Player 4"];
+let totals = [0, 0, 0, 0];
+
+const container = document.getElementById("players");
+
+// Create UI
+playerNames.forEach((name, i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `
+        <span>${name}: <span id="total${i}" class="total">0</span></span>
+        <input type="number" id="input${i}" placeholder="Points">
+    `;
+    container.appendChild(row);
+});
+
+// Add round logic (THIS is the key part)
+function addRound() {
+    for (let i = 0; i < totals.length; i++) {
+        const value = parseInt(document.getElementById("input" + i).value) || 0;
+        totals[i] += value;   // ✅ ADDING to existing total
+        document.getElementById("total" + i).innerText = totals[i];
+        document.getElementById("input" + i).value = "";
+    }
+}
+
+// Reset everything
+function resetGame() {
+    if (!confirm("Reset all scores?")) return;
+    totals = [0, 0, 0, 0];
+    totals.forEach((_, i) => {
+        document.getElementById("total" + i).innerText = 0;
+    });
+}
+</script>
+
+</body>
+</html>
