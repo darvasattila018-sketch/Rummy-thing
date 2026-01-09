@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +7,33 @@
 <style>
 body { font-family: Arial, sans-serif; padding: 20px; }
 h1 { text-align: center; }
-.row { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; }
-.name { font-weight: bold; cursor: pointer; }
-input[type="number"] { width: 80px; padding: 6px; text-align: right; }
-button { width: 100%; padding: 14px; font-size: 16px; margin-top: 10px; }
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 12px 0;
+}
+
+.name-input {
+    font-weight: bold;
+    font-size: 16px;
+    width: 100px;
+    padding: 4px;
+}
+
+input[type="number"] {
+    width: 80px;
+    padding: 6px;
+    text-align: right;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    margin-top: 10px;
+}
 </style>
 </head>
 <body>
@@ -18,14 +41,16 @@ button { width: 100%; padding: 14px; font-size: 16px; margin-top: 10px; }
 <h1>Rummy Points</h1>
 <div id="players"></div>
 
-<button onclick="addRound()">Add Round</button>
-<button onclick="resetGame()">Reset Game</button>
+<button id="addRoundBtn">Add Round</button>
+<button id="resetBtn">Reset Game</button>
 
 <script>
+// Default players
 const defaultNames = ["Player 1", "Player 2", "Player 3", "Player 4"];
 let names = [];
 let totals = [];
 
+// Load data from localStorage
 function load() {
     try {
         names = JSON.parse(localStorage.getItem("names")) || [...defaultNames];
@@ -36,6 +61,7 @@ function load() {
     }
 }
 
+// Save data to localStorage
 function save() {
     try {
         localStorage.setItem("names", JSON.stringify(names));
@@ -47,29 +73,30 @@ function save() {
 
 const container = document.getElementById("players");
 
+// Render players
 function render() {
     container.innerHTML = "";
     names.forEach((name, i) => {
         const row = document.createElement("div");
         row.className = "row";
         row.innerHTML = `
-            <span class="name" onclick="editName(${i})">${name}</span>
+            <input class="name-input" id="name${i}" value="${name}" />
             <span>${totals[i]}</span>
             <input type="number" id="input${i}" placeholder="Points">
         `;
         container.appendChild(row);
+
+        // Save name when changed
+        const nameInput = document.getElementById("name" + i);
+        nameInput.addEventListener("change", () => {
+            names[i] = nameInput.value.trim() || `Player ${i+1}`;
+            save();
+            render(); // Re-render to refresh display
+        });
     });
 }
 
-function editName(index) {
-    const newName = prompt("Enter player name:", names[index]);
-    if (newName && newName.trim() !== "") {
-        names[index] = newName.trim();
-        save();
-        render();
-    }
-}
-
+// Add points for a round
 function addRound() {
     for (let i = 0; i < totals.length; i++) {
         const inputEl = document.getElementById("input" + i);
@@ -81,13 +108,18 @@ function addRound() {
     render();
 }
 
+// Reset the game
 function resetGame() {
-    if (!confirm("Reset all scores and names?")) return;
+    // Optional: require double click or just reset immediately
     names = [...defaultNames];
     totals = [0,0,0,0];
     save();
     render();
 }
+
+// Button event listeners
+document.getElementById("addRoundBtn").addEventListener("click", addRound);
+document.getElementById("resetBtn").addEventListener("click", resetGame);
 
 // Initial load
 load();
